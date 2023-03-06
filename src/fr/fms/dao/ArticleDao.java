@@ -1,5 +1,6 @@
 package fr.fms.dao;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,7 +9,12 @@ import java.util.ArrayList;
 
 import fr.fms.entities.Article;
 
-public class ArticleDao implements Dao<Article> {
+public class ArticleDao extends DAO<Article> {
+
+	public ArticleDao(Connection connection) {
+		super(connection);
+
+	}
 
 	/**
 	 * creer un article

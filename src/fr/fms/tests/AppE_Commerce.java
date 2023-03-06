@@ -3,15 +3,20 @@ package fr.fms.tests;
 import java.util.Scanner;
 
 import fr.fms.business.IE_ServicesImpl;
+import fr.fms.dao.DAO;
+import fr.fms.dao.DAOFactory;
 import fr.fms.dao.UserDao;
+import fr.fms.entities.Category;
+import fr.fms.entities.User;
 
 public class AppE_Commerce {
 
-	public static UserDao daoUser = new UserDao();
+	// TODO modéliser le transfert d une commande DB
+
+	public static DAO<User> daoUser = DAOFactory.getUserDao();
 	public static IE_ServicesImpl services = new IE_ServicesImpl();
 
 	public static void main(String[] args) {
-		// TODO requette pour aller chercher les customer qu'un user à !!
 		Scanner scan = new Scanner(System.in);
 
 		while (UserAuth.isConnected(scan, daoUser) == false) // verif connection
@@ -23,39 +28,54 @@ public class AppE_Commerce {
 	private static void shoping(Scanner scan, IE_ServicesImpl services) {
 		long idCustomer = 0;
 		int input = 0;
-		while (input != 7) {
+		while (input != 9) {
 			menuWelcom(); // afficher le menu pricipal
 			input = scan.nextInt();
 			switch (input) {
 			case 1: // lister les articles
 				services.readAll().forEach(e -> System.out.println(e));
 				break;
-			case 2: // afficher un article
+			case 2: // afficher un article & sa category name
 				System.out.println("Veuillez saisir l'id du produit qui vous interesse :");
 				long idArticle = scan.nextLong();
-				System.out.println(services.read(idArticle));
+				Category category = services.readCategory(services.read(idArticle).getIdCategory());
+				System.out.println(services.read(idArticle) + " Catégorie : " + category.getName());
 				break;
-			case 3: // ajouter au panier
+
+			case 3: // lister toutes les categories
+				System.out.println("Liste des catégories de notre boutique :");
+				services.readAllCategory().forEach(e -> System.out.println(e));
+				break;
+
+			case 4: // afficher les articles par category avec possibilité d ajout au panier
+				System.out.println("Veuillez saisir l'id de la catégorie :");
+				long idCategory = scan.nextLong();
+				System.out.println("Liste des articles de cette catégorie : \n");
+				services.readAllCategoryArticle(idCategory).forEach(c -> System.out.println(c));
+				break;
+
+			case 5: // ajouter au panier
 				System.out.println("Veuillez saisir l'id du produit que vous voulez ajouter :");
 				idArticle = scan.nextLong();
 				if (services.addOrderItem(idArticle))
 					System.out.println(
 							"L'article " + services.read(idArticle).getDescription() + " à été ajouter à votre panier");
 				break;
-			case 4: // enlever du panier
+			case 6: // enlever du panier
 				System.out.println("Veuillez saisir l'id du produit que vous voulez enlever :");
 				idArticle = scan.nextInt();
 				services.deleteItemCart(idArticle);
 				break;
-			case 5: // voir le panier
+			case 7: // voir le panier
 				services.readCart();
 				break;
-			case 6: // choisir un compte client
+			case 8: // choisir un compte client
 				System.out.println("Choisissez dans la liste le client et l 'adresse :\n");
-				daoUser.getUserCustomers(daoUser.getUser().getId()).forEach((e -> System.out.println(e)));
+				((UserDao) daoUser).getUserCustomers(((UserDao) daoUser).getUser().getId())
+						.forEach((e -> System.out.println(e)));
 				idCustomer = scan.nextLong();
 				break;
-			case 7: // payer
+			case 9: // payer
 				services.readCart();
 				System.out.println("Montant de la commande : " + services.pay() + "€");
 				System.out.println("Saisissez le montant à payer à l'abri des regards !");
@@ -73,8 +93,11 @@ public class AppE_Commerce {
 	}
 
 	private static void menuWelcom() {
-		System.out.println(
-				"\nBienvenu sur notre platforme de vente d'article IT !\n1/ Liste des produits\n2/ Afficher les détails d'un produit\n3/ Ajouter un produits au panier\n4/ Enlever un produit du panier\n5/ Voir le panier\n6/ choisir l'adresse de livraison\n7/ Passer la commande\n");
+		System.out.println("\nBienvenu sur notre platforme de vente d'article IT !" + "\n1/ Liste des produits"
+				+ "\n2/ Afficher les détails d'un produit" + "\n3/ Afficher la liste des catégories"
+				+ "\n4/ Afficher les articles par categorie" + "\n5/ Ajouter un produits au panier"
+				+ "\n6/ Enlever un produit du panier" + "\n7/ Voir le panier" + "\n8/ choisir l'adresse de livraison"
+				+ "\n9/ Passer la commande\n");
 	}
 
 }

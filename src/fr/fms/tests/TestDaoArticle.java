@@ -2,22 +2,18 @@ package fr.fms.tests;
 
 import java.sql.Connection;
 
-import fr.fms.bdd.BddSingleton;
 import fr.fms.dao.ArticleDao;
-import fr.fms.dao.Dao;
+import fr.fms.dao.DAO;
+import fr.fms.dao.DAOFactory;
 import fr.fms.entities.Article;
 
 public class TestDaoArticle {
 
 	public static void main(String[] args) {
-		ArticleDao dao = new ArticleDao();
-		int counter = BddSingleton.count;
-		int counterMethod = BddSingleton.countMethod;
+		DAO<Article> dao = DAOFactory.getArticleDao();
 
-		System.out.println("counter = " + counter + "count method : " + counterMethod);
-
-		Connection cn1 = Dao.connection;
-		Connection cn2 = Dao.connection;
+		Connection cn1 = DAO.getConnection();
+		Connection cn2 = DAO.getConnection();
 
 		System.out.println(cn1.hashCode());
 		System.out.println(cn2.hashCode());
@@ -39,12 +35,12 @@ public class TestDaoArticle {
 			System.out.println("article mis à jour !");
 		// articles d'une category
 		System.out.println("----------articles category--------------");
-		dao.readAllCategory(1).forEach(e -> System.out.println(e));
+		((ArticleDao) dao).readAllCategory(1).forEach(e -> System.out.println(e));
 
 		// supprimer un article
 //		if (dao.delete(15))
 //			System.out.println("article supprimer ");
-		System.out.println("counter = " + counter + "count method : " + counterMethod);
+
 	}
 
 }

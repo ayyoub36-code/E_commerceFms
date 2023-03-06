@@ -5,19 +5,27 @@ import java.util.ArrayList;
 
 import fr.fms.bdd.BddSingleton;
 
-public interface Dao<T> {
+public abstract class DAO<T> {
 
 	// public Connection connection = BddConnection.getConnection();
-	public Connection connection = BddSingleton.getInstance().connection;
+	protected static Connection connection = null;
 
-	public void create(T obj);
+	public DAO(Connection connection) {
+		DAO.connection = BddSingleton.getInstance().getConnection();
+	}
 
-	public T read(long id);
+	public abstract void create(T obj);
 
-	public boolean update(T obj);
+	public abstract T read(long id);
 
-	public boolean delete(long id);
+	public abstract boolean update(T obj);
 
-	public ArrayList<T> readAll();
+	public abstract boolean delete(long id);
+
+	public abstract ArrayList<T> readAll();
+
+	public static Connection getConnection() {
+		return connection;
+	}
 
 }

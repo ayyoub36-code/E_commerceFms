@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import fr.fms.entities.Article;
+import fr.fms.entities.Category;
 import fr.fms.entities.OrderItem;
 
 public interface IE_Services {
@@ -11,8 +12,14 @@ public interface IE_Services {
 	// lister tous les articles
 	public ArrayList<Article> readAll();
 
+	// lister toutes les categories
+	public ArrayList<Category> readAllCategory();
+
 	// voir un article
 	public Article read(long id);
+
+	// voir la categorie d'un article
+	public Category readCategory(long idCat);
 
 	// voir les articles d'une catégorie
 	public ArrayList<Article> readAllCategoryArticle(long idCategory);

@@ -10,20 +10,24 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import fr.fms.dao.ArticleDao;
-import fr.fms.dao.Dao;
+import fr.fms.dao.DAO;
+import fr.fms.dao.DAOFactory;
 import fr.fms.entities.Article;
+import fr.fms.entities.Category;
 import fr.fms.entities.OrderItem;
 
 public class IE_ServicesImpl implements IE_Services {
 
-	public ArticleDao dao; // injection du dao
-	public Connection connection = Dao.connection;
+	public DAO<Article> dao; // injection du dao
+	public DAO<Category> daoCategory;
+	public Connection connection = DAO.getConnection();
 
 	private Map<Long, OrderItem> cart; // stockage du panier
 
 	public IE_ServicesImpl() {
 		cart = new HashMap<>();
-		dao = new ArticleDao();
+		dao = DAOFactory.getArticleDao();
+		daoCategory = DAOFactory.getCategoryDao();
 	}
 
 	@Override
@@ -123,8 +127,18 @@ public class IE_ServicesImpl implements IE_Services {
 	}
 
 	@Override
+	public ArrayList<Category> readAllCategory() {
+		return daoCategory.readAll();
+	}
+
+	@Override
 	public ArrayList<Article> readAllCategoryArticle(long idCategory) {
-		return dao.readAllCategory(idCategory);
+		return ((ArticleDao) dao).readAllCategory(idCategory);
+	}
+
+	@Override
+	public Category readCategory(long idCat) {
+		return daoCategory.read(idCat);
 	}
 
 	@Override

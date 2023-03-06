@@ -1,5 +1,6 @@
 package fr.fms.dao;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +11,12 @@ import java.util.List;
 import fr.fms.entities.Customer;
 import fr.fms.entities.User;
 
-public class UserDao implements Dao<User> {
+public class UserDao extends DAO<User> {
+
+	public UserDao(Connection connection) {
+		super(connection);
+
+	}
 
 	private User user;
 

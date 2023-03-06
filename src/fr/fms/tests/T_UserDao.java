@@ -5,15 +5,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import fr.fms.bdd.BddConnection;
-import fr.fms.dao.Dao;
-import fr.fms.dao.UserDao;
+import fr.fms.dao.DAO;
+import fr.fms.dao.DAOFactory;
 import fr.fms.entities.User;
 
 public class T_UserDao {
 
 	public static void main(String[] args) {
 
-		Dao<User> dao = new UserDao();
+		DAO<User> dao = DAOFactory.getUserDao();
 
 		dao.readAll().forEach(e -> System.out.println(e));
 

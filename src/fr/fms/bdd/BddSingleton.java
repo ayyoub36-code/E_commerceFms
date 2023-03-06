@@ -14,7 +14,7 @@ public class BddSingleton {
 	private static BddSingleton single_connection = null;
 
 	// connection
-	public Connection connection;
+	private Connection connection;
 	public static int count;
 	public static int countMethod;
 
@@ -50,7 +50,7 @@ public class BddSingleton {
 
 	// contructor privé
 	private BddSingleton() {
-		connection = getConnection();
+		this.connection = getConnection();
 		count++;
 	}
 
