@@ -49,20 +49,14 @@ public class ArticleDao extends DAO<Article> {
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setLong(1, id);
 			try (ResultSet resultSet = ps.executeQuery()) {
-				while (resultSet.next()) {
-					long rs_IdArticle = resultSet.getLong(1);
-					String rs_Description = resultSet.getString(2);
-					String rs_Brand = resultSet.getString(3);
-					double rs_Price = resultSet.getDouble(4);
-					long rs_IdCategory = resultSet.getLong(5);
-					article = new Article(rs_IdArticle, rs_Description, rs_Brand, rs_Price, rs_IdCategory);
+				if (resultSet.next()) {
+					article = new Article(resultSet.getLong(1), resultSet.getString(2), resultSet.getString(3),
+							resultSet.getDouble(4), resultSet.getLong(5));
 				}
 			}
-
 		} catch (SQLException e) {
 			throw new RuntimeException("mauvaise requette sql ! verifier l id saisie !");
 		}
-
 		return article;
 	}
 
@@ -114,20 +108,14 @@ public class ArticleDao extends DAO<Article> {
 	@Override
 	public ArrayList<Article> readAll() {
 		ArrayList<Article> articles = new ArrayList<>();
-
 		String sql = "SELECT * FROM T_Articles";
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet resultSet = statement.executeQuery(sql)) {
 				while (resultSet.next()) {
-					long rs_IdArticle = resultSet.getLong(1);
-					String rs_Description = resultSet.getString(2);
-					String rs_Brand = resultSet.getString(3);
-					double rs_Price = resultSet.getDouble(4);
-					long rs_IdCategory = resultSet.getLong(5);
-					articles.add(new Article(rs_IdArticle, rs_Description, rs_Brand, rs_Price, rs_IdCategory));
+					articles.add(new Article(resultSet.getLong(1), resultSet.getString(2), resultSet.getString(3),
+							resultSet.getDouble(4), resultSet.getLong(5)));
 				}
 			}
-
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
@@ -136,27 +124,18 @@ public class ArticleDao extends DAO<Article> {
 
 	public ArrayList<Article> readAllCategory(long idCategory) {
 		ArrayList<Article> articlesOfCategory = new ArrayList<>();
-
 		String sql = "SELECT * FROM T_Articles WHERE idCategory=?;";
 		try (PreparedStatement pr = connection.prepareStatement(sql)) {
 			pr.setLong(1, idCategory);
 			try (ResultSet resultSet = pr.executeQuery()) {
 				while (resultSet.next()) {
-					long rs_IdArticle = resultSet.getLong(1);
-					String rs_Description = resultSet.getString(2);
-					String rs_Brand = resultSet.getString(3);
-					double rs_Price = resultSet.getDouble(4);
-					long rs_IdCategory = resultSet.getLong(5);
-					articlesOfCategory
-							.add(new Article(rs_IdArticle, rs_Description, rs_Brand, rs_Price, rs_IdCategory));
+					articlesOfCategory.add(new Article(resultSet.getLong(1), resultSet.getString(2),
+							resultSet.getString(3), resultSet.getDouble(4), resultSet.getLong(5)));
 				}
 			}
-
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 		return articlesOfCategory;
-
 	}
-
 }

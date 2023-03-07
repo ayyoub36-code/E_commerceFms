@@ -36,19 +36,15 @@ public class CategoryDao extends DAO<Category> {
 		String sql = "Select * from T_categories where idCategory =? ;";
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setLong(1, id);
-			try (ResultSet resultSet = ps.executeQuery()) {
-				while (resultSet.next()) {
-					long rs_IdCategory = resultSet.getLong(1);
-					String rs_CatName = resultSet.getString(2);
-					String rs_Description = resultSet.getString(3);
-					category = new Category(rs_IdCategory, rs_CatName, rs_Description);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					category = new Category(rs.getLong(1), rs.getString(2), rs.getString(3));
 				}
 			}
 
 		} catch (SQLException e) {
 			throw new RuntimeException("mauvaise requette sql ! verifier l id saisie !");
 		}
-
 		return category;
 	}
 

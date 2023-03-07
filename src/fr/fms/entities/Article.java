@@ -65,7 +65,7 @@ public class Article {
 
 	@Override
 	public String toString() {
-		return id + " = " + description + " " + brand + " Prix : " + price + " €";
+		return id + " = " + description + ", Marque :" + brand + ", Prix :" + price + "€";
 	}
 
 }

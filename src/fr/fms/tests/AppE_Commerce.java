@@ -11,8 +11,6 @@ import fr.fms.entities.User;
 
 public class AppE_Commerce {
 
-	// TODO modéliser le transfert d une commande DB
-
 	public static DAO<User> daoUser = DAOFactory.getUserDao();
 	public static IE_ServicesImpl services = new IE_ServicesImpl();
 
@@ -38,8 +36,12 @@ public class AppE_Commerce {
 			case 2: // afficher un article & sa category name
 				System.out.println("Veuillez saisir l'id du produit qui vous interesse :");
 				long idArticle = scan.nextLong();
-				Category category = services.readCategory(services.read(idArticle).getIdCategory());
-				System.out.println(services.read(idArticle) + " Catégorie : " + category.getName());
+				if (services.read(idArticle).getIdCategory() != 0) {
+					Category category = services.readCategory(services.read(idArticle).getIdCategory());
+					System.out.println(services.read(idArticle) + ", Catégorie : " + category.getName());
+				} else
+					System.out.println(services.read(idArticle) + ", Catégorie : pas de catégorie ! ");
+
 				break;
 
 			case 3: // lister toutes les categories
