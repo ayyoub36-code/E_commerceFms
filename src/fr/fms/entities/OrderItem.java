@@ -4,25 +4,25 @@ public class OrderItem {
 
 	private long id;
 	private long idArticle;
-	private int quatity;
+	private int quantity;
 	private long idOrder;
 
 	public OrderItem(long id, long idArticle, int quatity, long idOrder) {
 		this.id = id;
 		this.idArticle = idArticle;
-		this.quatity = quatity;
+		this.quantity = quatity;
 		this.idOrder = idOrder;
 	}
 
 	public OrderItem(long idArticle, int quatity, long idOrder) {
 		this.idArticle = idArticle;
-		this.quatity = quatity;
+		this.quantity = quatity;
 		this.idOrder = idOrder;
 	}
 
 	public OrderItem(long idArticle, int quatity) {
 		this.idArticle = idArticle;
-		this.quatity = quatity;
+		this.quantity = quatity;
 
 	}
 
@@ -38,12 +38,12 @@ public class OrderItem {
 		this.idArticle = idArticle;
 	}
 
-	public int getQuatity() {
-		return quatity;
+	public int getQuantity() {
+		return quantity;
 	}
 
-	public void setQuatity(int quatity) {
-		this.quatity = quatity;
+	public void setQuantity(int quatity) {
+		this.quantity = quatity;
 	}
 
 	public long getIdOrder() {

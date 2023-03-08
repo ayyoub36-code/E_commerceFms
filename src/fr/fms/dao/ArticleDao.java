@@ -48,11 +48,10 @@ public class ArticleDao extends DAO<Article> {
 		String sql = "Select * from T_articles where idArticle =? ;";
 		try (PreparedStatement ps = connection.prepareStatement(sql)) {
 			ps.setLong(1, id);
-			try (ResultSet resultSet = ps.executeQuery()) {
-				if (resultSet.next()) {
-					article = new Article(resultSet.getLong(1), resultSet.getString(2), resultSet.getString(3),
-							resultSet.getDouble(4), resultSet.getLong(5));
-				}
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				article = new Article(resultSet.getLong(1), resultSet.getString(2), resultSet.getString(3),
+						resultSet.getDouble(4), resultSet.getLong(5));
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("mauvaise requette sql ! verifier l id saisie !");

@@ -1,4 +1,4 @@
-package fr.fms.tests;
+package fr.fms.auth;
 
 import java.util.Scanner;
 

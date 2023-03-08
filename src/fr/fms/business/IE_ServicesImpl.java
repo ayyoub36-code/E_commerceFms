@@ -1,9 +1,6 @@
 package fr.fms.business;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,14 +9,18 @@ import java.util.Map.Entry;
 import fr.fms.dao.ArticleDao;
 import fr.fms.dao.DAO;
 import fr.fms.dao.DAOFactory;
+import fr.fms.dao.OrderDao;
 import fr.fms.entities.Article;
 import fr.fms.entities.Category;
+import fr.fms.entities.Order;
 import fr.fms.entities.OrderItem;
 
 public class IE_ServicesImpl implements IE_Services {
 
 	public DAO<Article> dao; // injection du dao
 	public DAO<Category> daoCategory;
+	public DAO<Order> daoOrder;
+	public DAO<OrderItem> daoOrderItem;
 	public Connection connection = DAO.getConnection();
 
 	private Map<Long, OrderItem> cart; // stockage du panier
@@ -27,6 +28,8 @@ public class IE_ServicesImpl implements IE_Services {
 	public IE_ServicesImpl() {
 		cart = new HashMap<>();
 		dao = DAOFactory.getArticleDao();
+		daoOrder = DAOFactory.getOrderDao();
+		daoOrderItem = DAOFactory.getOrderItemDao();
 		daoCategory = DAOFactory.getCategoryDao();
 	}
 
@@ -51,14 +54,11 @@ public class IE_ServicesImpl implements IE_Services {
 	@Override
 	public boolean addOrderItem(long idArticle) {
 		int quantity = 1;
-		// Article article = dao.read(idArticle);
 		if (dao.readAll().get((int) idArticle) != null) {
-			// id exist déja => augmente la quantity
 			if (!cart.containsKey(idArticle)) {
-				// creer un nouveau orderItem avec l idArticle
-				orderItem = new OrderItem(idArticle, quantity);
-			} else {
-				orderItem.setQuatity(cart.get(idArticle).getQuatity() + 1);
+				orderItem = new OrderItem(idArticle, quantity); // creer orderItem avec l idArticle
+			} else { // id exist déja => quantity ++
+				orderItem.setQuantity(cart.get(idArticle).getQuantity() + 1);
 			}
 			cart.put(idArticle, orderItem);
 			return true;
@@ -85,10 +85,10 @@ public class IE_ServicesImpl implements IE_Services {
 	 * @param id de l article
 	 */
 	@Override
-	public void deleteItemCart(long id) { // TODO enlever du panier => quantity ?
+	public void deleteItemCart(long id) {
 		if (cart.containsKey(id)) {
-			if (cart.get(id).getQuatity() > 1) {
-				cart.get(id).setQuatity(cart.get(id).getQuatity() - 1);
+			if (cart.get(id).getQuantity() > 1) {
+				cart.get(id).setQuantity(cart.get(id).getQuantity() - 1);
 			} else {
 				cart.remove(id);
 				System.out.println("Article supprimé de votre panier ");
@@ -109,7 +109,7 @@ public class IE_ServicesImpl implements IE_Services {
 		// lire cart
 		for (Map.Entry<Long, OrderItem> set : cart.entrySet()) {
 			Article article = dao.read(set.getValue().getIdArticle());
-			sum += article.getPrice() * set.getValue().getQuatity();// calculer le montant
+			sum += article.getPrice() * set.getValue().getQuantity();// calculer le montant
 		}
 		return sum;
 	}
@@ -122,7 +122,7 @@ public class IE_ServicesImpl implements IE_Services {
 		for (Entry<Long, OrderItem> set : cart.entrySet()) {
 			Article article = dao.read(set.getValue().getIdArticle());
 			System.out.println("Article : " + article.getId() + "  " + article.getDescription() + "     x"
-					+ set.getValue().getQuatity() + "    Prix Unitaire : " + article.getPrice() + " €");
+					+ set.getValue().getQuantity() + "    Prix Unitaire : " + article.getPrice() + " €");
 		}
 	}
 
@@ -143,50 +143,16 @@ public class IE_ServicesImpl implements IE_Services {
 
 	@Override
 	public void createOrder(Map<Long, OrderItem> cart, long idCustomer) { // stocker order and OrderItems
-		if (idCustomer != 0) { // persister la commande(idCustomer) => {idOrder}
-			String sql = "INSERT INTO T_Orders (OrderDate,IdCustomer) VALUES (?,?);";
-			try (PreparedStatement ps = connection.prepareStatement(sql)) {
-				ps.setDate(1, java.sql.Date.valueOf(java.time.LocalDate.now()));
-				ps.setLong(2, idCustomer);
-				ps.executeQuery();
-
-				long idOrder = getLastOrderAdded(); // recuperer l id du dernier order add bd
-				System.out.println(idOrder);
-				// persister les diferents itemsOrders => ListItemOrder(Order)
-				String sqlOItem = "INSERT INTO T_OrderItems (IdArticle,Quantity,idOrder) VALUES (?,?,?);";
-				for (Entry<Long, OrderItem> set : cart.entrySet()) {
-					Article article = dao.read(set.getValue().getIdArticle());
-					// boucle for pour persisiter tous les Orderitems
-					try (PreparedStatement ps2 = connection.prepareStatement(sqlOItem)) {
-						ps2.setLong(1, article.getId());
-						ps2.setInt(2, set.getValue().getQuatity());
-						ps2.setLong(3, idOrder);
-						ps2.executeUpdate();
-					}
-				}
-
-			} catch (SQLException e) {
-				throw new RuntimeException("mauvaise requette sql !");
+		long idOrder = 0;
+		if (idCustomer != 0) { // je cree une commande avec l id customer
+			idOrder = ((OrderDao) daoOrder)
+					.createAndReturnId(new Order(java.sql.Date.valueOf(java.time.LocalDate.now()), idCustomer));
+			for (Entry<Long, OrderItem> set : cart.entrySet()) {
+				Article article = dao.read(set.getValue().getIdArticle()); // persisiter tous les Orderitems
+				OrderItem oi = new OrderItem(article.getId(), set.getValue().getQuantity(), idOrder);
+				daoOrderItem.create(oi);
 			}
 		} else
 			System.out.println("veuillez choisir le client !");
-
 	}
-
-	public long getLastOrderAdded() {
-		long rs_Count = 0;
-		String sql = "SELECT * FROM t_orders ORDER BY idOrder DESC LIMIT 1;";
-		try {
-			PreparedStatement ps = connection.prepareStatement(sql);
-			ResultSet rs = ps.executeQuery();
-			rs.next();
-			rs_Count = rs.getLong(1);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return rs_Count;
-	}
-
 }
